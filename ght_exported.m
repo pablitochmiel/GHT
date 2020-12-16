@@ -111,7 +111,8 @@ classdef ght_exported < matlab.apps.AppBase
             %---------------------------------------------------------------------------find  the location best score all scores which are close enough to the best score
             %imtool(Itr,[]);
             mx=max(max(Itr));% find the max score location
-            [y,x]=find(Itr==mx,1,'first');
+            [y,x]=find(Itr==mx);
+            %[y,x]=find(Itr==mx,1,'first');
             %[y,x]=find(Itr>=thresh*mx,  10, 'first'); % find the location first 10 best matches which their score is at least thresh percents of the maximal score and pot them in the x,y array
             score=Itr(y,x); % find max score in the huogh space 
         end
@@ -154,7 +155,7 @@ classdef ght_exported < matlab.apps.AppBase
                 a=imread(fullfile(path,file));
                 %app.Image.ImageSource=a;
                 app.image=a;
-                imtool(a);
+                %imtool(a);
                 a=rgb2gray(a);
                 %app.image=double(a)/255;
                 app.imageGray=a;
@@ -176,7 +177,7 @@ classdef ght_exported < matlab.apps.AppBase
             else
                 a=imread(fullfile(path,file));
                 app.shape=(a(:,:,1)==0);
-                imtool(app.shape);
+                %imtool(app.shape);
                 if ~isempty(app.imageGray)
                     app.findButton.Enable='on';
                 end
@@ -186,22 +187,45 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findButton
         function findButtonPushed(app, event)
             [app.score,app.y,app.x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
-            app.scoreLabel.Text=string(app.score);
-            app.xLabel.Text=string(app.x);
-            app.yLabel.Text=string(app.y);
+%             app.scoreLabel.Text=string(app.score(1));
+            app.xLabel.Text=string(app.x(1));
+            app.yLabel.Text=string(app.y(1));
+            s=size(app.x,1);
+            app.scoreLabel.Text=string(s);
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
-            for i=1:a
-                for j=1:b
-                    if (i-app.x+1>0 && j-app.y+1>0 && i-app.x+1<=size(app.shape,1) && j-app.y+1<=size(app.shape,2) && app.shape(i-app.x+1,j-app.y+1))
-                        temp(i,j,1)=255;
-                    else
-                        temp(i,j,:)=app.image(i,j,:);
+            temp(:,:,:)=app.image(:,:,:);
+            for k=1:s
+                for i=1:a
+                    for j=1:b
+                        if (i-app.x(k)+1>0 && j-app.y(k)+1>0 && i-app.x(k)+1<=size(app.shape,1) && j-app.y(k)+1<=size(app.shape,2) && app.shape(i-app.x(k)+1,j-app.y(k)+1))
+                            temp(i,j,1)=255;
+                            temp(i,j,2)=0;
+                            temp(i,j,3)=0;
+                        end
                     end
                 end
             end
             
             imshow(temp,'parent',app.UIAxes);
+%             [app.score,app.y,app.x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
+%             app.scoreLabel.Text=string(app.score);
+%             app.xLabel.Text=string(app.x);
+%             app.yLabel.Text=string(app.y);
+%             [a,b,~]=size(app.image);
+%             temp=zeros([a,b,3],'uint8');
+%             temp(:,:,:)=app.image(:,:,:);
+%             for i=1:a
+%                 for j=1:b
+%                     if (i-app.x+1>0 && j-app.y+1>0 && i-app.x+1<=size(app.shape,1) && j-app.y+1<=size(app.shape,2) && app.shape(i-app.x+1,j-app.y+1))
+%                         temp(i,j,1)=255;
+%                         temp(i,j,2)=0;
+%                         temp(i,j,3)=0;
+%                     end
+%                 end
+%             end
+%             
+%             imshow(temp,'parent',app.UIAxes);
         end
 
         % Value changed function: EdgeDropDown
