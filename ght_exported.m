@@ -196,36 +196,18 @@ classdef ght_exported < matlab.apps.AppBase
             temp=zeros([a,b,3],'uint8');
             temp(:,:,:)=app.image(:,:,:);
             for k=1:s
-                for i=1:a
-                    for j=1:b
-                        if (i-app.x(k)+1>0 && j-app.y(k)+1>0 && i-app.x(k)+1<=size(app.shape,1) && j-app.y(k)+1<=size(app.shape,2) && app.shape(i-app.x(k)+1,j-app.y(k)+1))
-                            temp(i,j,1)=255;
-                            temp(i,j,2)=0;
-                            temp(i,j,3)=0;
+                for i=1:size(app.shape,1)
+                    for j=1:size(app.shape,2)
+                        if (app.shape(i,j))
+                            temp(i+app.y(k),j+app.x(k),1)=255;
+                            temp(i+app.y(k),j+app.x(k),2)=0;
+                            temp(i+app.y(k),j+app.x(k),3)=0;
                         end
                     end
                 end
             end
             
             imshow(temp,'parent',app.UIAxes);
-%             [app.score,app.y,app.x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
-%             app.scoreLabel.Text=string(app.score);
-%             app.xLabel.Text=string(app.x);
-%             app.yLabel.Text=string(app.y);
-%             [a,b,~]=size(app.image);
-%             temp=zeros([a,b,3],'uint8');
-%             temp(:,:,:)=app.image(:,:,:);
-%             for i=1:a
-%                 for j=1:b
-%                     if (i-app.x+1>0 && j-app.y+1>0 && i-app.x+1<=size(app.shape,1) && j-app.y+1<=size(app.shape,2) && app.shape(i-app.x+1,j-app.y+1))
-%                         temp(i,j,1)=255;
-%                         temp(i,j,2)=0;
-%                         temp(i,j,3)=0;
-%                     end
-%                 end
-%             end
-%             
-%             imshow(temp,'parent',app.UIAxes);
         end
 
         % Value changed function: EdgeDropDown
