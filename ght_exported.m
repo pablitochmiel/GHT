@@ -7,11 +7,6 @@ classdef ght_exported < matlab.apps.AppBase
         shapeButton        matlab.ui.control.Button
         findButton         matlab.ui.control.Button
         Label              matlab.ui.control.Label
-        Label2             matlab.ui.control.Label
-        Label3             matlab.ui.control.Label
-        scoreLabel         matlab.ui.control.Label
-        yLabel             matlab.ui.control.Label
-        xLabel             matlab.ui.control.Label
         UIAxes             matlab.ui.control.UIAxes
         EdgeDropDownLabel  matlab.ui.control.Label
         EdgeDropDown       matlab.ui.control.DropDown
@@ -166,6 +161,7 @@ classdef ght_exported < matlab.apps.AppBase
                 if ~isempty(app.shape)
                     app.findButton.Enable='on';
                 end
+                app.Label.Text="image added";
             end
         end
 
@@ -181,17 +177,15 @@ classdef ght_exported < matlab.apps.AppBase
                 if ~isempty(app.imageGray)
                     app.findButton.Enable='on';
                 end
+                app.Label.Text="shape added";
              end
         end
 
         % Button pushed function: findButton
         function findButtonPushed(app, event)
+            app.Label.Text="shape search in progress";
             [app.score,app.y,app.x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
-%             app.scoreLabel.Text=string(app.score(1));
-            app.xLabel.Text=string(app.x(1));
-            app.yLabel.Text=string(app.y(1));
             s=size(app.x,1);
-            app.scoreLabel.Text=string(s);
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
             temp(:,:,:)=app.image(:,:,:);
@@ -206,12 +200,13 @@ classdef ght_exported < matlab.apps.AppBase
                     end
                 end
             end
-            
+            app.Label.Text="found "+string(s)+" shapes, score "+string(app.score(1));
             imshow(temp,'parent',app.UIAxes);
         end
 
         % Value changed function: EdgeDropDown
         function EdgeDropDownValueChanged(app, event)
+            app.Label.Text="edge search in progress";
             value = app.EdgeDropDown.Value;
             if(value=="log")
                 app.sigmaSpinner.Value=2;
@@ -228,10 +223,12 @@ classdef ght_exported < matlab.apps.AppBase
                 app.imageEdg=edge(app.imageGray,value);
             end
             imshow(app.imageEdg,'parent',app.UIAxes);
+            app.Label.Text="edges found";
         end
 
         % Value changed function: sigmaSpinner
         function sigmaSpinnerValueChanged(app, event)
+            app.Label.Text="edge search in progress";
             value = app.EdgeDropDown.Value;
             if(value=="log")
                 sigma=app.sigmaSpinner.Value;
@@ -241,6 +238,7 @@ classdef ght_exported < matlab.apps.AppBase
                 app.imageEdg=edge(app.imageGray,value,[],sigma);
             end
             imshow(app.imageEdg,'parent',app.UIAxes);
+            app.Label.Text="edges found";
         end
     end
 
@@ -275,33 +273,8 @@ classdef ght_exported < matlab.apps.AppBase
 
             % Create Label
             app.Label = uilabel(app.UIFigure);
-            app.Label.Position = [70 64 35 22];
-            app.Label.Text = 'score';
-
-            % Create Label2
-            app.Label2 = uilabel(app.UIFigure);
-            app.Label2.Position = [161 64 25 22];
-            app.Label2.Text = 'y';
-
-            % Create Label3
-            app.Label3 = uilabel(app.UIFigure);
-            app.Label3.Position = [241 64 25 22];
-            app.Label3.Text = 'x';
-
-            % Create scoreLabel
-            app.scoreLabel = uilabel(app.UIFigure);
-            app.scoreLabel.Position = [104 64 25 22];
-            app.scoreLabel.Text = '';
-
-            % Create yLabel
-            app.yLabel = uilabel(app.UIFigure);
-            app.yLabel.Position = [185 64 44 22];
-            app.yLabel.Text = '';
-
-            % Create xLabel
-            app.xLabel = uilabel(app.UIFigure);
-            app.xLabel.Position = [265 64 44 22];
-            app.xLabel.Text = '';
+            app.Label.Position = [42 64 235 22];
+            app.Label.Text = '';
 
             % Create UIAxes
             app.UIAxes = uiaxes(app.UIFigure);
