@@ -305,7 +305,7 @@ classdef ght_exported < matlab.apps.AppBase
             % Create sigmaSpinner
             app.sigmaSpinner = uispinner(app.UIFigure);
             app.sigmaSpinner.Step = 0.1;
-            app.sigmaSpinner.Limits = [0 Inf];
+            app.sigmaSpinner.Limits = [0.1 Inf];
             app.sigmaSpinner.ValueChangedFcn = createCallbackFcn(app, @sigmaSpinnerValueChanged, true);
             app.sigmaSpinner.Position = [334 388 63 22];
             app.sigmaSpinner.Value = 2;
