@@ -29,9 +29,6 @@ classdef ght_exported < matlab.apps.AppBase
         imageGray=[];
         imageEdg=[];
         shape=[];
-        x;
-        y;
-        score;
     end
     
     methods (Access = private)
@@ -174,12 +171,12 @@ classdef ght_exported < matlab.apps.AppBase
               Itr=Rotate_binary_edge_image(app,Itm,Ang);
             %----------------------------------------------------------------------------------------------------------------------------------------- 
              % the actuall recogniton step of the resize template Itm in the orginal image Is and return location of best match and its score can occur in one of three modes given in search_mode
-                         [app.score,  app.y,app.x ]=Generalized_hough_transform(app,Is,Iedg,Itr);% use generalized hough transform to find the template in the image
+                         [score,  y,x ]=Generalized_hough_transform(app,Is,Iedg,Itr);% use generalized hough transform to find the template in the image
                  %--------------------------if the correct match score is better then previous best match write the paramter of the match as the new best match------------------------------------------------------
-                 if (app.score(1)>BestScore) % if item  result scored higher then the previous result
-                       BestScore=app.score(1);% remember best score
-                         Ybest=app.y(1);% mark best location y
-                       Xbest=app.x(1);% mark best location x
+                 if (score(1)>BestScore) % if item  result scored higher then the previous result
+                       BestScore=score(1);% remember best score
+                         Ybest=y(1);% mark best location y
+                       Xbest=x(1);% mark best location x
                        ItmAng=Ang;
                  end
             %-------------------------------mark best found location on image----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
@@ -245,34 +242,34 @@ classdef ght_exported < matlab.apps.AppBase
         Dy=-NMinY;          % Tanslation of new image y
         mat = false(round(NSizeY+1),round(NSizeX+1));% create canvas for rotated image
         %===============================================rotate image==================================================================================================
-        [app.y,app.x]=find(I);
-        [n,~]=size(app.x);
+        [y,x]=find(I);
+        [n,~]=size(x);
         for f=1:n %scan all points on image
-             p1=[app.y(f)-CntY app.x(f)-CntX]*Rot+[Dy+1 Dx+1];
+             p1=[y(f)-CntY x(f)-CntX]*Rot+[Dy+1 Dx+1];
              mat(round(p1(1)),round(p1(2)))=1;% mark rotated point
             
             
-            if app.x(f)>1 && I(app.y(f),app.x(f)-1)==1 % Connect horizontal neighbour 
-                   Nx=app.x(f)-1; Ny=app.y(f);
-                   p1=[app.y(f)-CntY, app.x(f)-CntX]*Rot+[Dy+1 Dx+1];
+            if x(f)>1 && I(y(f),x(f)-1)==1 % Connect horizontal neighbour 
+                   Nx=x(f)-1; Ny=y(f);
+                   p1=[y(f)-CntY, x(f)-CntX]*Rot+[Dy+1 Dx+1];
                    p2=[Ny-CntY, Nx-CntX]*Rot+[Dy+1 Dx+1];
                    mat=ConnectPoints(app,mat,round(p1(2)),round(p1(1)),round(p2(2)),round(p2(1)));
             end
-            if app.y(f)>1 && I(app.y(f)-1,app.x(f))==1 %connect vertical neighbour
-                    Nx=app.x(f); Ny=app.y(f)-1;  
-                    p1=[app.y(f)-CntY, app.x(f)-CntX]*Rot+[Dy+1 Dx+1];
+            if y(f)>1 && I(y(f)-1,x(f))==1 %connect vertical neighbour
+                    Nx=x(f); Ny=y(f)-1;  
+                    p1=[y(f)-CntY, x(f)-CntX]*Rot+[Dy+1 Dx+1];
                     p2=[Ny-CntY, Nx-CntX]*Rot+[Dy+1 Dx+1];
                     mat=ConnectPoints(app,mat,round(p1(2)),round(p1(1)),round(p2(2)),round(p2(1)));
             end
-            if app.y(f)>1  && app.x(f)>1 &&  I(app.y(f)-1,app.x(f))==0 && I(app.y(f),app.x(f)-1)==0 && I(app.y(f)-1,app.x(f)-1)==1 % connect diagonal neighbor
-                    Nx=app.x(f)-1; Ny=app.y(f)-1;  
-                    p1=[app.y(f)-CntY, app.x(f)-CntX]*Rot+[Dy+1 Dx+1];
+            if y(f)>1  && x(f)>1 &&  I(y(f)-1,x(f))==0 && I(y(f),x(f)-1)==0 && I(y(f)-1,x(f)-1)==1 % connect diagonal neighbor
+                    Nx=x(f)-1; Ny=y(f)-1;  
+                    p1=[y(f)-CntY, x(f)-CntX]*Rot+[Dy+1 Dx+1];
                     p2=[Ny-CntY, Nx-CntX]*Rot+[Dy+1 Dx+1];
                     mat=ConnectPoints(app,mat,round(p1(2)),round(p1(1)),round(p2(2)),round(p2(1)));
             end
-            if app.y(f)>1  && app.x(f)<Width &&  I(app.y(f)-1,app.x(f))==0 && I(app.y(f),app.x(f)+1)==0 && I(app.y(f)-1,app.x(f)+1)==1 % connect second diagonal neighbor
-                    Nx=app.x(f)+1; Ny=app.y(f)-1;  
-                    p1=[app.y(f)-CntY, app.x(f)-CntX]*Rot+[Dy+1 Dx+1];
+            if y(f)>1  && x(f)<Width &&  I(y(f)-1,x(f))==0 && I(y(f),x(f)+1)==0 && I(y(f)-1,x(f)+1)==1 % connect second diagonal neighbor
+                    Nx=x(f)+1; Ny=y(f)-1;  
+                    p1=[y(f)-CntY, x(f)-CntX]*Rot+[Dy+1 Dx+1];
                     p2=[Ny-CntY, Nx-CntX]*Rot+[Dy+1 Dx+1];
                     mat=ConnectPoints(app,mat,round(p1(2)),round(p1(1)),round(p2(2)),round(p2(1)));
             end 
@@ -380,8 +377,8 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findButton
         function findButtonPushed(app, event)
             app.Label.Text="shape search in progress";
-            [app.score,app.y,app.x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
-            s=size(app.x,1);
+            [score,y,x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
+            s=size(x,1);
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
             temp(:,:,:)=app.image(:,:,:);
@@ -389,14 +386,14 @@ classdef ght_exported < matlab.apps.AppBase
                 for i=1:size(app.shape,1)
                     for j=1:size(app.shape,2)
                         if (app.shape(i,j))
-                            temp(i+app.y(k),j+app.x(k),1)=255;
-                            temp(i+app.y(k),j+app.x(k),2)=0;
-                            temp(i+app.y(k),j+app.x(k),3)=0;
+                            temp(i+y(k),j+x(k),1)=255;
+                            temp(i+y(k),j+x(k),2)=0;
+                            temp(i+y(k),j+x(k),3)=0;
                         end
                     end
                 end
             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(app.score(1));
+            app.Label.Text="found "+string(s)+" shapes, score "+string(score(1));
             imshow(temp,'Parent',app.UIAxes);
         end
 
@@ -440,8 +437,8 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findrotateButton
         function findrotateButtonPushed(app, event)
             app.Label.Text="shape search in progress";
-            [~,~,app.y,app.x,kat,app.score]=MAIN_find_object_in_image(app,app.imageGray,app.imageEdg,app.shape);
-            s=size(app.x,1);
+            [~,~,y,x,kat,score]=MAIN_find_object_in_image(app,app.imageGray,app.imageEdg,app.shape);
+            s=size(x,1);
 %             [a,b,~]=size(app.image);
 %             temp=zeros([a,b,3],'uint8');
 %             temp(:,:,:)=app.image(:,:,:);
@@ -449,14 +446,14 @@ classdef ght_exported < matlab.apps.AppBase
 %                 for i=1:size(app.shape,1)
 %                     for j=1:size(app.shape,2)
 %                         if (app.shape(i,j))
-%                             temp(i+app.y(k),j+app.x(k),1)=255;
-%                             temp(i+app.y(k),j+app.x(k),2)=0;
-%                             temp(i+app.y(k),j+app.x(k),3)=0;
+%                             temp(i+y(k),j+x(k),1)=255;
+%                             temp(i+y(k),j+x(k),2)=0;
+%                             temp(i+y(k),j+x(k),3)=0;
 %                         end
 %                     end
 %                 end
 %             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(app.score(1))+', kat '+string(kat);
+            app.Label.Text="found "+string(s)+" shapes, score "+string(score(1))+', kat '+string(kat);
 %            imshow(temp,'Parent',app.UIAxes);
         end
     end
