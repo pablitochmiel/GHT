@@ -358,7 +358,9 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findButton
         function findButtonPushed(app, event)
             app.Label.Text="shape search in progress";
+            tic
             [score,y,x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,app.shape);
+            time=toc;
             s=size(x,1);
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
@@ -374,7 +376,7 @@ classdef ght_exported < matlab.apps.AppBase
                     end
                 end
             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(score);
+            app.Label.Text="found "+string(s)+" shapes, score "+string(score)+', time: '+string(time);
             imshow(temp,'Parent',app.UIAxes);
         end
 
@@ -413,8 +415,10 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findrotateButton
         function findrotateButtonPushed(app, event)
             app.Label.Text="shape search in progress";
+            tic
             [Ang,score]=ght_with_rotate(app,app.imageGray,app.imageEdg,app.shape);
-            nAng=size(Ang,2);
+            time=toc;
+            nAng=length(Ang);
             s=0;
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
@@ -444,7 +448,7 @@ classdef ght_exported < matlab.apps.AppBase
                     end
                 end
             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(score)+', nkatow '+string(length(Ang));
+            app.Label.Text="found "+string(s)+" shapes, score: "+string(score)+', nAng: '+string(nAng)+', time: '+string(time);
             imshow(temp,'Parent',app.UIAxes);
         end
     end
@@ -480,7 +484,7 @@ classdef ght_exported < matlab.apps.AppBase
 
             % Create Label
             app.Label = uilabel(app.UIFigure);
-            app.Label.Position = [42 37 235 22];
+            app.Label.Position = [42 37 388 22];
             app.Label.Text = '';
 
             % Create UIAxes
