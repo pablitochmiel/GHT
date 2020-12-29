@@ -405,7 +405,7 @@ classdef ght_exported < matlab.apps.AppBase
                 app.sigmaSpinner.Value=2;
                 app.sigmaSpinner.Enable='on';
                 sigma=app.sigmaSpinner.Value;
-                app.imageEdg=edge(app.imageGray,value,0,sigma);
+                app.imageEdg=edge(app.imageGray,value,[],sigma);
             elseif(value=="Canny")
                 app.sigmaSpinner.Value=1.4;
                 app.sigmaSpinner.Enable='on';
@@ -423,13 +423,8 @@ classdef ght_exported < matlab.apps.AppBase
         function sigmaSpinnerValueChanged(app, event)
             app.Label.Text="edge search in progress";
             value = app.EdgeDropDown.Value;
-            if(value=="log")
-                sigma=app.sigmaSpinner.Value;
-                app.imageEdg=edge(app.imageGray,value,0,sigma);
-            elseif(value=="Canny")
-                sigma=app.sigmaSpinner.Value;
-                app.imageEdg=edge(app.imageGray,value,[],sigma);
-            end
+            sigma=app.sigmaSpinner.Value;
+            app.imageEdg=edge(app.imageGray,value,[],sigma);
             imshow(app.imageEdg,'parent',app.UIAxes);
             app.Label.Text="edges found";
         end
