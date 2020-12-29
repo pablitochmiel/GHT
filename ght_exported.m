@@ -165,9 +165,9 @@ classdef ght_exported < matlab.apps.AppBase
     %         St=size(Itm);
     %         Ss=size(Is);
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Main Scan  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            for Ang=1:app.stepSpinner.Value:360 % rotate the template Itm 1 degree at the time and look for it in the image Is
+            for Ang=0:app.stepSpinner.Value:359 % rotate the template Itm 1 degree at the time and look for it in the image Is
                 
-                disp([num2str((Ang)/3.6) '% Scanned']);
+                %disp([num2str((Ang)/3.6) '% Scanned']);
               Itr=Rotate_binary_edge_image(app,Itm,Ang);
             %----------------------------------------------------------------------------------------------------------------------------------------- 
              % the actuall recogniton step of the resize template Itm in the orginal image Is and return location of best match and its score can occur in one of three modes given in search_mode
