@@ -102,14 +102,15 @@ classdef ght_exported < matlab.apps.AppBase
             %}
             %============================================Find best match in hough space=========================================================================================
             %---------------------------------------------------------------------------normalized according to template size (fraction of the template points that was found)------------------------------------------------------------------------------------------------
-            Itr=houghspace;%./(sum(sum(Itm))); % Itr become the new score matrix
+            Itr=houghspace/(sum(sum(Itm))); % Itr become the new score matrix
             %---------------------------------------------------------------------------find  the location best score all scores which are close enough to the best score
             %imtool(Itr,[]);
             mx=max(max(Itr));% find the max score location
             [y,x]=find(Itr==mx);
             %[y,x]=find(Itr==mx,1,'first');
             %[y,x]=find(Itr>=thresh*mx,  10, 'first'); % find the location first 10 best matches which their score is at least thresh percents of the maximal score and pot them in the x,y array
-            score=Itr(y,x); % find max score in the huogh space 
+            %score=Itr(y,x); % find max score in the huogh space 
+            score=mx;
         end
         
         function [ Is ] = gradient_direction(~, i3 )
@@ -129,7 +130,7 @@ classdef ght_exported < matlab.apps.AppBase
             %}
         end
         
-        function [Ismarked,Iborders,Ybest,Xbest, ItmAng, BestScore]= MAIN_find_object_in_image(app,Is,Iedg,Itm)
+        function [ItmAng, BestScore]= ght_with_rotate(app,Is,Iedg,Itm)
             %{
             Find an object that fit Template Itm in image Is.
             The orientation of the template and the object in the image does not have to be the same as that as the template. 
@@ -150,12 +151,12 @@ classdef ght_exported < matlab.apps.AppBase
             The angle and location in the image that gave the best match for the template are chosen.
             %}
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%initialize optiona paramters%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (nargin<1)  
-                Is=imread('Is.jpg');  
-            end %Read image
-            if (nargin<2)  
-                Itm=imread('Itm.tif');
-            end %Read template image
+%             if (nargin<1)  
+%                 Is=imread('Is.jpg');  
+%             end %Read image
+%             if (nargin<2)  
+%                 Itm=imread('Itm.tif');
+%             end %Read template image
             %Is=rgb2gray(Is);
             %Itm=logical(Itm);% make sure Itm is boolean image
             BestScore=-100000;
@@ -171,33 +172,33 @@ classdef ght_exported < matlab.apps.AppBase
               Itr=Rotate_binary_edge_image(app,Itm,Ang);
             %----------------------------------------------------------------------------------------------------------------------------------------- 
              % the actuall recogniton step of the resize template Itm in the orginal image Is and return location of best match and its score can occur in one of three modes given in search_mode
-                         [score,  y,x ]=Generalized_hough_transform(app,Is,Iedg,Itr);% use generalized hough transform to find the template in the image
+                         [score,  ~,~ ]=Generalized_hough_transform(app,Is,Iedg,Itr);% use generalized hough transform to find the template in the image
                  %--------------------------if the correct match score is better then previous best match write the paramter of the match as the new best match------------------------------------------------------
-                 if (score(1)>BestScore) % if item  result scored higher then the previous result
-                       BestScore=score(1);% remember best score
-                         Ybest=y(1);% mark best location y
-                       Xbest=x(1);% mark best location x
+                 if (score>BestScore) % if item  result scored higher then the previous result
+                       BestScore=score;% remember best score
                        ItmAng=Ang;
+                 elseif(score==BestScore)
+                     ItmAng(end+1)=Ang;
                  end
             %-------------------------------mark best found location on image----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
             end
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%show   best match optional part can be removed %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if BestScore>-100000% Display best match
-                 Itr=Rotate_binary_edge_image(app,Itm,ItmAng);
-                        [yy,xx] =find(Itr);
-                         Ismarked=set2(app,Is,[yy,xx],255,Ybest,Xbest);%Mark best match on image
-                        imshow(Ismarked,'Parent',app.UIAxes);
-                        Iborders=false(size(Is));
-                   Iborders=set2(app,Iborders,[yy,xx],1,Ybest,Xbest);
-               
-            else % if no match 
-               disp('Error no match founded');
-                Ismarked=0;% assign arbitary value to avoid 
-                   %Iborders=0;
-                   Iborders=0;
-                
-            end
+%             if BestScore>-100000% Display best match
+%                  Itr=Rotate_binary_edge_image(app,Itm,ItmAng);
+%                         [yy,xx] =find(Itr);
+%                          Ismarked=set2(app,Is,[yy,xx],255,Ybest,Xbest);%Mark best match on image
+%                         imshow(Ismarked,'Parent',app.UIAxes);
+%                         Iborders=false(size(Is));
+%                    Iborders=set2(app,Iborders,[yy,xx],1,Ybest,Xbest);
+%                
+%             else % if no match 
+%                disp('Error no match founded');
+%                 Ismarked=0;% assign arbitary value to avoid 
+%                    %Iborders=0;
+%                    Iborders=0;
+%                 
+%             end
         end
         
         function [mat]=Rotate_binary_edge_image(app,I,Ang)
@@ -298,26 +299,6 @@ classdef ght_exported < matlab.apps.AppBase
            %imshow(mat)
            %pause(0.1);
         end
-        
-        function [m2] = set2(~, m,k,v,y ,x )
-            % set value of  v in coordinates k of image m  with initial position x and y,
-            if nargin<4
-                y=0;
-                x=0;
-            end
-            if x<0
-                x=0;
-            end
-            if y<0
-                y=0;
-            end
-            [a,~]=size(k);
-            m2=m;
-            for f=1:1:a
-                m2(k(f,1)+y,k(f,2)+x)=v;
-            %m(6,6)=7;
-            end
-        end
     end
     
 
@@ -393,7 +374,7 @@ classdef ght_exported < matlab.apps.AppBase
                     end
                 end
             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(score(1));
+            app.Label.Text="found "+string(s)+" shapes, score "+string(score);
             imshow(temp,'Parent',app.UIAxes);
         end
 
@@ -432,24 +413,39 @@ classdef ght_exported < matlab.apps.AppBase
         % Button pushed function: findrotateButton
         function findrotateButtonPushed(app, event)
             app.Label.Text="shape search in progress";
-            [~,~,y,x,kat,score]=MAIN_find_object_in_image(app,app.imageGray,app.imageEdg,app.shape);
-            s=size(x,1);
-%             [a,b,~]=size(app.image);
-%             temp=zeros([a,b,3],'uint8');
-%             temp(:,:,:)=app.image(:,:,:);
-%             for k=1:s
-%                 for i=1:size(app.shape,1)
-%                     for j=1:size(app.shape,2)
-%                         if (app.shape(i,j))
-%                             temp(i+y(k),j+x(k),1)=255;
-%                             temp(i+y(k),j+x(k),2)=0;
-%                             temp(i+y(k),j+x(k),3)=0;
-%                         end
-%                     end
-%                 end
-%             end
-            app.Label.Text="found "+string(s)+" shapes, score "+string(score(1))+', kat '+string(kat);
-%            imshow(temp,'Parent',app.UIAxes);
+            [Ang,score]=ght_with_rotate(app,app.imageGray,app.imageEdg,app.shape);
+            nAng=size(Ang,2);
+            s=0;
+            [a,b,~]=size(app.image);
+            temp=zeros([a,b,3],'uint8');
+            temp(:,:,:)=app.image(:,:,:);
+            for l=1:nAng
+                Itr=Rotate_binary_edge_image(app,app.shape,Ang(l));
+                [~,y,x]=Generalized_hough_transform(app,app.imageGray,app.imageEdg,Itr);
+                s1=size(x,1);
+                s=s+s1;
+%                 zmienna="iteracja"
+%                 Ang
+%                 size(Ang)
+%                 score
+%                 y
+%                 x
+%                 s
+%                 s1
+                for k=1:s1
+                    for i=1:size(Itr,1)
+                        for j=1:size(Itr,2)
+                            if (Itr(i,j))
+                                temp(i+y(k),j+x(k),1)=255;
+                                temp(i+y(k),j+x(k),2)=0;
+                                temp(i+y(k),j+x(k),3)=0;
+                            end
+                        end
+                    end
+                end
+            end
+            app.Label.Text="found "+string(s)+" shapes, score "+string(score)+', nkatow '+string(length(Ang));
+            imshow(temp,'Parent',app.UIAxes);
         end
     end
 
