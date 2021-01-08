@@ -7,7 +7,7 @@ image=rgb2gray(image_rgb);
 %test
 imageEdg=edge(image);         %nie wywala
 %imshow(imageEdg);
-shape=imread('eksperyment.png');
+shape=imread('tr.png');
 
 shape=(shape(:,:,1)==0);
 if(with_rotate==false)
@@ -32,14 +32,13 @@ if(with_rotate==false)
             end
         end
     end
-    Text="found "+string(s)+' shapes, time: '+string(time)
+    disp("found "+string(s)+' shapes, time: '+string(time));
     imshow(temp);
     %imtool(res)
 else
     tic
-    Ang=correlation_with_rotate(imageEdg,shape);
+    [Ang,nAng]=correlation_with_rotate(imageEdg,shape);
     time=toc;
-    nAng=length(Ang);
     s=0;
     [a,b,~]=size(image);
     temp=zeros([a,b,3],'uint8');
@@ -64,21 +63,26 @@ else
             end
         end
     end
-    Text="found "+string(s)+' shapes, nAng: '+string(nAng)+', time: '+string(time)
+    disp("found "+string(s)+' shapes, nAng: '+string(nAng)+', time: '+string(time));
     imshow(temp);
 end
 
-function ItmAng=correlation_with_rotate(imageEdg,shape)
+function [ItmAng, nAng]=correlation_with_rotate(imageEdg,shape)
     BestScore=-100000;
+    nAng=1;
+    ItmAng=zeros(1,100);
     for Ang=0:2:359 
         Itr=Rotate_binary_edge_image(shape,Ang);
         res=filter2(Itr,imageEdg);
         score=max(max(res));
         if (score>BestScore) % if item  result scored higher then the previous result
             BestScore=score;% remember best score
-            ItmAng=Ang;
+            nAng=1;
+            ItmAng(:)=0;
+            ItmAng(1)=Ang;
         elseif(score==BestScore)
-            ItmAng(end+1)=Ang;
+            nAng=nAng+1;
+            ItmAng(nAng)=Ang;
         end     
     end
 end
