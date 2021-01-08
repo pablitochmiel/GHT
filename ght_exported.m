@@ -130,7 +130,7 @@ classdef ght_exported < matlab.apps.AppBase
             %}
         end
         
-        function [ItmAng, BestScore]= ght_with_rotate(app,Is,Iedg,Itm)
+        function [ItmAng, nAng, BestScore]= ght_with_rotate(app,Is,Iedg,Itm)
             %{
             Find an object that fit Template Itm in image Is.
             The orientation of the template and the object in the image does not have to be the same as that as the template. 
@@ -160,8 +160,10 @@ classdef ght_exported < matlab.apps.AppBase
             %Is=rgb2gray(Is);
             %Itm=logical(Itm);% make sure Itm is boolean image
             BestScore=-100000;
-            close all;
-            imtool close all;
+            nAng=1;
+            ItmAng=zeros(1,100);
+%             close all;
+%             imtool close all;
             %%%%%%%%%%%%%%%%Some parameters%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%555555555
     %         St=size(Itm);
     %         Ss=size(Is);
@@ -175,10 +177,13 @@ classdef ght_exported < matlab.apps.AppBase
                          [score,  ~,~ ]=Generalized_hough_transform(app,Is,Iedg,Itr);% use generalized hough transform to find the template in the image
                  %--------------------------if the correct match score is better then previous best match write the paramter of the match as the new best match------------------------------------------------------
                  if (score>BestScore) % if item  result scored higher then the previous result
-                       BestScore=score;% remember best score
-                       ItmAng=Ang;
+                    BestScore=score;% remember best score
+                    nAng=1;
+                    ItmAng(:)=0;
+                    ItmAng(1)=Ang;
                  elseif(score==BestScore)
-                     ItmAng(end+1)=Ang;
+                    nAng=nAng+1;
+                    ItmAng(nAng)=Ang;
                  end
             %-------------------------------mark best found location on image----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
             end
@@ -416,9 +421,8 @@ classdef ght_exported < matlab.apps.AppBase
         function findrotateButtonPushed(app, event)
             app.Label.Text="shape search in progress";
             tic
-            [Ang,score]=ght_with_rotate(app,app.imageGray,app.imageEdg,app.shape);
+            [Ang,nAng,score]=ght_with_rotate(app,app.imageGray,app.imageEdg,app.shape);
             time=toc;
-            nAng=length(Ang);
             s=0;
             [a,b,~]=size(app.image);
             temp=zeros([a,b,3],'uint8');
