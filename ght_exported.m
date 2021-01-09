@@ -52,8 +52,8 @@ classdef ght_exported < matlab.apps.AppBase
             [y, x]=find(Itm>0); % find all y,x cordinates of all points equal 1 inbinary template image Itm
             nvs=size(x);% number of points in the  template image
             %-------------------Define Yc and Xc ----------------------------------------------
-            Cy=1;%round(mean(y));% find object y center, note that any reference point will do so the origin of axis hence 1 could be used just as well
-            Cx=1;%round(mean(x));% find object z center, note that any reference point will do so the origin of axis hence 1 could be used just as well
+            Cy=round(size(Itm,1)/2);% find object y center, note that any reference point will do so the origin of axis hence 1 could be used just as well
+            Cx=round(size(Itm,2)/2);% find object z center, note that any reference point will do so the origin of axis hence 1 could be used just as well
             %------------------------------create gradient map of Itm, distrobotion between zero to pi %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             GradientMap = gradient_direction( app,Itm );
             %%%%%%%%%%%%%%%%%%%%%%%Create an R-Table of Itm gradients to  parameter space in parameter space.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -368,15 +368,18 @@ classdef ght_exported < matlab.apps.AppBase
             time=toc;
             s=size(x,1);
             [a,b,~]=size(app.image);
+            [c,d]=size(app.shape);
             temp=zeros([a,b,3],'uint8');
             temp(:,:,:)=app.image(:,:,:);
             for k=1:s
-                for i=1:size(app.shape,1)
-                    for j=1:size(app.shape,2)
+                for i=1:c
+                    for j=1:d
                         if (app.shape(i,j))
-                            temp(i+y(k),j+x(k),1)=255;
-                            temp(i+y(k),j+x(k),2)=0;
-                            temp(i+y(k),j+x(k),3)=0;
+                            if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
+                                temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
+                                temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
+                                temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                            end
                         end
                     end
                 end
@@ -440,13 +443,16 @@ classdef ght_exported < matlab.apps.AppBase
 %                 x
 %                 s
 %                 s1
+                [c,d]=size(Itr);
                 for k=1:s1
-                    for i=1:size(Itr,1)
-                        for j=1:size(Itr,2)
+                    for i=1:c
+                        for j=1:d
                             if (Itr(i,j))
-                                temp(i+y(k),j+x(k),1)=255;
-                                temp(i+y(k),j+x(k),2)=0;
-                                temp(i+y(k),j+x(k),3)=0;
+                                if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
+                                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
+                                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
+                                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                                end
                             end
                         end
                     end

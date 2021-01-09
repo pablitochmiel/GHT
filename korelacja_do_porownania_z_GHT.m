@@ -7,7 +7,7 @@ image=rgb2gray(image_rgb);
 %test
 imageEdg=edge(image);         %nie wywala
 %imshow(imageEdg);
-shape=imread('tr.png');
+shape=imread('test_wydajnosci\test5.png');
 
 shape=(shape(:,:,1)==0);
 if(with_rotate==false)
@@ -25,9 +25,11 @@ if(with_rotate==false)
         for i=1:c
             for j=1:d
                 if (shape(i,j))
-                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
-                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
-                    temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                    if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
+                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
+                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
+                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                    end
                 end
             end
         end
@@ -55,9 +57,11 @@ else
             for i=1:c
                 for j=1:d
                     if (Itr(i,j))
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                        if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
+                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
+                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
+                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                        end
                     end
                 end
             end
