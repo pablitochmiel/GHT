@@ -7,15 +7,13 @@ image=rgb2gray(image_rgb);
 %test
 imageEdg=edge(image);         %nie wywala
 %imshow(imageEdg);
-shape=imread('test_wydajnosci\test5.png');
+shape=imread('a.png');
 
 shape=(shape(:,:,1)==0);
 if(with_rotate==false)
     tic;
-    res=filter2(shape,imageEdg);
+    [score,y,x]=correlation(imageEdg,shape);
     time=toc;
-    res=res./max(max(res));
-    [y,x]=find(res==1);
     s=size(x,1);
     [a,b,~]=size(image);
     [c,d]=size(shape);
@@ -25,21 +23,22 @@ if(with_rotate==false)
         for i=1:c
             for j=1:d
                 if (shape(i,j))
-                    if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
-                        temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                    if((i+y(k)-c)>0 && (j+x(k)-d)>0 && (i+y(k)-c)<=a && (j+x(k)-d)<=b)
+                        temp(i+y(k)-c,j+x(k)-d,1)=255;
+                        temp(i+y(k)-c,j+x(k)-d,2)=0;
+                        temp(i+y(k)-c,j+x(k)-d,3)=0;
                     end
                 end
             end
         end
     end
     disp("found "+string(s)+' shapes, time: '+string(time));
+    figure;
     imshow(temp);
     %imtool(res)
 else
     tic
-    [Ang,nAng]=correlation_with_rotate(imageEdg,shape);
+    [Ang,nAng,score]=correlation_with_rotate(imageEdg,shape);
     time=toc;
     s=0;
     [a,b,~]=size(image);
@@ -47,9 +46,7 @@ else
     temp(:,:,:)=image_rgb(:,:,:);
     for l=1:nAng
         Itr=Rotate_binary_edge_image(shape,Ang(l));
-        res=filter2(Itr,imageEdg);
-        res=res./max(max(res));
-        [y,x]=find(res==1);
+        [~,y,x]=correlation(imageEdg,Itr);
         s1=size(x,1);
         s=s+s1;
         [c,d]=size(Itr);
@@ -57,10 +54,10 @@ else
             for i=1:c
                 for j=1:d
                     if (Itr(i,j))
-                        if((i+y(k)-round(0.5*c))>0 && (j+x(k)-round(0.5*d))>0 && (i+y(k)-round(0.5*c))<=a && (j+x(k)-round(0.5*d))<=b)
-                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),1)=255;
-                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),2)=0;
-                            temp(i+y(k)-round(0.5*c),j+x(k)-round(0.5*d),3)=0;
+                        if((i+y(k)-c)>0 && (j+x(k)-d)>0 && (i+y(k)-c)<=a && (j+x(k)-d)<=b)
+                            temp(i+y(k)-c,j+x(k)-d,1)=255;
+                            temp(i+y(k)-c,j+x(k)-d,2)=0;
+                            temp(i+y(k)-c,j+x(k)-d,3)=0;
                         end
                     end
                 end
@@ -71,14 +68,13 @@ else
     imshow(temp);
 end
 
-function [ItmAng, nAng]=correlation_with_rotate(imageEdg,shape)
+function [ItmAng, nAng,score]=correlation_with_rotate(imageEdg,shape)
     BestScore=-100000;
     nAng=1;
     ItmAng=zeros(1,100);
     for Ang=0:2:359 
         Itr=Rotate_binary_edge_image(shape,Ang);
-        res=filter2(Itr,imageEdg);
-        score=max(max(res));
+        [score,~,~]=correlation(imageEdg,Itr);
         if (score>BestScore) % if item  result scored higher then the previous result
             BestScore=score;% remember best score
             nAng=1;
@@ -191,3 +187,10 @@ round(y);
    %pause(0.1);
 end
 
+function [score,  y, x ]=correlation(imageEdg,shape)
+    res=real(ifft2(fft2(imageEdg) .* fft2(rot90(shape,2),size(imageEdg,1),size(imageEdg,2))));
+%     figure;
+%     imshow(res,[]);
+    score=max(max(res));
+    [y,x]=find(res==score);
+end
